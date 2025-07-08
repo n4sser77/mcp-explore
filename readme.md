@@ -88,7 +88,8 @@ mcp-explore/
 
 ```bash
 # 1. Start Ollama (if not already running)
-ollama run deepseek-r1:8b
+ollama run llama3.1
+ - also make sure the modal supports tools, such as llama3.1
 
 # 2. Run the MCP tool server project
 cd MyFirstMCP

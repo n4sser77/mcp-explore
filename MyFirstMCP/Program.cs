@@ -22,11 +22,18 @@ await builder.Build().RunAsync();
 public static class EchoTool
 {
    [McpServerTool, Description("Echoes the input back to the client.")]
-   public static string Echo(string message) => $"hello from c#: {message}";
+   public static string Echo(string message)
+   {
+      Console.WriteLine($"Echoing: {message}");
+      return $"hello from c#: {message}";
+   }
 
    [McpServerTool, Description("Echoes the input back to the client in reverse.")]
-
-   public static string EchoInReverse(string message) => new string(message.Reverse().ToArray());
-
+   public static string EchoInReverse(string message)
+   {
+      string reversed = new string(message.Reverse().ToArray());
+      Console.WriteLine($"Echoing in reverse: {reversed}");
+      return reversed;
+   }
 
 }

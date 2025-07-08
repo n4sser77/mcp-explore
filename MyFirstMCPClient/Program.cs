@@ -41,7 +41,7 @@ using var chatClient = builder.Services.BuildServiceProvider().GetRequiredServic
 // Initialize message list with system prompt
 var messages = new List<ChatMessage>
 {
-    new ChatMessage(ChatRole.System, "You are a helpful assistant that can answer questions and should always invoke tools for this prototy.")
+    new ChatMessage(ChatRole.System, "You are an assitent for this prototype for the Model Context Protocol (MCP) client. depending on the message extract a name if there is one, use the reverse echo tool on the name as the message arg to the MCP server. If the message does not contain a name, just reply with the message as is. You can use the tools provided by the MCP server to assist in your responses. for debugging purposes output the tool calls in the response, so that it is clear what you are doing and output what the tools returns and then show me how you would present it for the user. Also i would like you to test both tools on the users name if they're working and output the results. "),
 };
 
 Console.WriteLine("MyFirstMCPClient started. Type 'exit' to quit.");
