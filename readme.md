@@ -32,9 +32,9 @@ The assistant uses **local LLMs** that support tool calling (like `llama3.1`), a
 | Component                 | Description |
 |--------------------------|-------------|
 | [.NET 9](https://dotnet.microsoft.com) | Main runtime |
-| [OllamaSharp](https://github.com/ollama/ollama-dotnet) | .NET SDK for Ollama |
-| [Microsoft.Extensions.AI](https://github.com/dotnet/semantic-kernel) | Experimental chat tooling for .NET |
-| [Model Context Protocol (MCP)](https://github.com/modelcontext/protocol) | Tool calling protocol |
+| [OllamaSharp](https://github.com/awaescher/OllamaSharp) | .NET SDK for Ollama |
+| [Microsoft.Extensions.AI](https://github.com/dotnet/extensions/tree/main/src/Libraries/Microsoft.Extensions.AI) | Experimental chat tooling for .NET |
+| [Model Context Protocol (MCP)](https://github.com/modelcontextprotocol) | Tool calling protocol |
 | [Ollama](https://ollama.com) | Local model runner with support for Mistral, LLaMA3, DeepSeek, etc |
 
 ---
@@ -145,16 +145,3 @@ MIT — you're free to use, modify, and extend.
 Developer & student exploring full-stack dev, AI, Arabic language & Islamic thought.
 
 > *"Learning by building. Understanding by breaking."*
-
----
-
-```text
-
-Let me know if you'd like:
-- A badge section (e.g., .NET version, license, etc.)
-- Automatic README generation from code comments
-- A section for GitHub Actions / CI setup
-- Screenshots or GIFs added to visually explain behavior
-
-Would you like me to write a `.gitignore` and an initial commit command too?
-```
