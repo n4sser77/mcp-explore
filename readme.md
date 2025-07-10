@@ -1,7 +1,7 @@
 # 🧠 MCP Client + Ollama Tool Calling Prototype
 
 ![.NET](https://img.shields.io/badge/.NET-9.0-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
+<!-- ![License](https://img.shields.io/badge/License-MIT-green) -->
 ![Ollama Model](https://img.shields.io/badge/Model-Llama3.1-yellow)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-blue)
 
