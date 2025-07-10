@@ -8,8 +8,11 @@ using ModelContextProtocol;
 using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol;
 using System.Linq;
+using Microsoft.VisualBasic;
 
 var builder = Host.CreateApplicationBuilder(args);
+
+
 
 // Configuration & Logging
 builder.Configuration
@@ -17,6 +20,7 @@ builder.Configuration
     .AddUserSecrets<Program>();
 
 builder.Logging.AddConsole();
+
 
 // Set up Ollama client
 var ollama = new OllamaApiClient(new Uri(builder.Configuration["OLLAMA_HOST"] ?? "http://localhost:11434"));
@@ -29,19 +33,43 @@ builder.Services.AddSingleton<IChatClient>(sp =>
 
 // Set up MCP tool server (stdio transport)
 var (cmd, cmdArgs) = ("dotnet", new[] { "run", "--project", "C:\\Users\\nasse\\Desktop\\code\\mcp-explore\\MyFirstMCP\\MyFirstMCP.csproj" });
-var transport = new StdioClientTransport(new() { Name = "MyMCP Server", Command = cmd, Arguments = cmdArgs });
+var stdioClientTransport = new StdioClientTransport(new() { Name = "MyMCP Server", Command = cmd, Arguments = cmdArgs });
+// Set up MCP tool server (SSE transport)
+var sseTransport = new SseClientTransport(new SseClientTransportOptions() { Endpoint = new Uri("https://gitmcp.io/n4sser77/mcp-explore") });
 
-await using var mcpClient = await McpClientFactory.CreateAsync(transport);
-var tools = (await mcpClient.ListToolsAsync()).ToArray();
-Console.WriteLine($"MCP Server tools: {string.Join(", ", tools.Select(t => t.Name))}");
+await using var stdioMcpClient = await McpClientFactory.CreateAsync(stdioClientTransport);
+await using var sseMcpClient = await McpClientFactory.CreateAsync(sseTransport);
+
+
+MyGlobalToolStore.Tools = (await stdioMcpClient.ListToolsAsync()).ToList();
+// MyGlobalToolStore.Tools.Add( new GitMcpConnector()); // Add the GitMcpConnector tool
+MyGlobalToolStore.Tools = MyGlobalToolStore.Tools.Concat(await sseMcpClient.ListToolsAsync()).ToList();
+
+Console.WriteLine($"MCP Server tools: {string.Join(", ", MyGlobalToolStore.Tools.Select(t => t.Name))}");
 
 // Get chat client
 using var chatClient = builder.Services.BuildServiceProvider().GetRequiredService<IChatClient>();
 
+var systemPrompt = """
+You are a helpful assistant running in a terminal test environment.
+
+You have access to tools and must use them to answer questions and perform tasks. 
+This is a prototype app — your main goal is to test that the tools work properly.
+
+Always follow these rules:
+- Use the available tools. Don’t guess or make up answers.
+- If you're unsure how to use a tool, check its description.
+- When you call a tool, display the **exact output** it returns.
+- Extract what’s relevant from the tool's output `content`, and show it clearly.
+- Format your response for **beautiful, easy-to-read terminal output** — use spacing, line breaks, and clear labels.
+
+Keep your responses clean, helpful, and easy to follow. This is a debugging-friendly assistant, not a chatbot.
+""";
+
 // Initialize message list with system prompt
 var messages = new List<ChatMessage>
 {
-    new ChatMessage(ChatRole.System, "You are an assitent for this prototype for the Model Context Protocol (MCP) client. depending on the message extract a name if there is one, use the reverse echo tool on the name as the message arg to the MCP server. If the message does not contain a name, just reply with the message as is. You can use the tools provided by the MCP server to assist in your responses. for debugging purposes output the tool calls in the response, so that it is clear what you are doing and output what the tools returns and then show me how you would present it for the user. Also i would like you to test both tools on the users name if they're working and output the results. "),
+    new ChatMessage(ChatRole.System, systemPrompt),
 };
 
 Console.WriteLine("MyFirstMCPClient started. Type 'exit' to quit.");
@@ -57,8 +85,11 @@ while (Console.ReadLine() is string input && !input.Trim().Equals("exit", String
       await foreach (var chunk in chatClient.GetStreamingResponseAsync(messages, new ChatOptions
       {
          MaxOutputTokens = 1000,
-         Tools = tools,
-         ToolMode = ChatToolMode.Auto
+         Tools = MyGlobalToolStore.Tools.ToArray(),
+         ToolMode = ChatToolMode.RequireAny,
+         AllowMultipleToolCalls = true,
+
+
       }))
       {
          Console.Write(chunk);
@@ -73,3 +104,12 @@ while (Console.ReadLine() is string input && !input.Trim().Equals("exit", String
 }
 
 static void Prompt() => Console.Write("> ");
+
+
+
+
+
+static class MyGlobalToolStore
+{
+   public static List<McpClientTool> Tools { get; set; } = new List<McpClientTool>();
+}
